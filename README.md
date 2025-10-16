@@ -1,0 +1,2 @@
+# lidar_fix
+The lidar_fix module compensates for LiDAR sensor errors caused by ground reflections. It takes raw LiDAR sensor data as input, estimates the sensor's height from the ground, and provides a corrected point cloud based on this estimation.

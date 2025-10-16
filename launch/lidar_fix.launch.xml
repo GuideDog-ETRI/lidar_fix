@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="lidar_fix" exec="lidar_fix_node" name="lidar_fix_node" output="screen">
+    <param name="topic_in" value="/ouster/points"/>
+    <param name="topic_out" value="/ouster/points/fix"/>
+  </node>
+</launch>
