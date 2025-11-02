@@ -110,11 +110,11 @@ void LidarFix::init_index_and_radius(const sensor_msgs::msg::PointCloud2& cloud,
     if (el_cnt[r] > 0) {
       el_table_[r] = static_cast<float>(el_sum[r] / el_cnt[r]);
     } else {
-      // 바로 옆 el_table_ 값 부여
+      // assign the value from the previous element in el_table_ if available
       el_table_[r] = (r > 0) ? el_table_[r - 1] : 0.0f;
     }
   }
-  // 뒤쪽에서도 보정(후방 채움) - 앞에서 0만 채워졌을 경우 대비
+  // back-fill from the end to handle cases where only the front was filled with zeros
   for (int r = H - 2; r >= 0; --r) {
     if (el_cnt[r] == 0) el_table_[r] = el_table_[r + 1];
   }
@@ -237,12 +237,12 @@ void LidarFix::lidar_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg
           bool is_likely_reflection = true;
           
           if (off_intensity != SIZE_MAX) {
-            const float intensity_p = *reinterpret_cast<const float*>(sb + off + off_intensity); // 현재(z<grnd_z) 지점 반사 값
-            const float intensity_q = *reinterpret_cast<const float*>(sb + offk + off_intensity); // 대칭 지점 실제 반사 값
+            const float intensity_p = *reinterpret_cast<const float*>(sb + off + off_intensity); // reflection value at the current point (z < grnd_z)
+            const float intensity_q = *reinterpret_cast<const float*>(sb + offk + off_intensity); // actual reflection value at the symmetric point
             if (intensity_q > 1e-6) {
               const float ratio = intensity_p / intensity_q;
               if (ratio >= kIntensityR) {
-                is_likely_reflection = false; // 비율이 높으면 반사가 아닌 실제 물체일 가능성 높음
+                is_likely_reflection = false; // if the ratio is high, it's more likely a real object rather than a reflection
               }
             }
           }
@@ -268,7 +268,7 @@ void LidarFix::lidar_callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg
 }
 
 // --------------------------------------------------
-// ground z estimator (원본 유지)
+// ground z estimator
 // --------------------------------------------------
 float LidarFix::estimate_ground_z(const sensor_msgs::msg::PointCloud2::SharedPtr msg,
                                   float bin_sz, float z_min, float z_max)
@@ -336,4 +336,5 @@ float LidarFix::estimate_ground_z(const sensor_msgs::msg::PointCloud2::SharedPtr
                (cnt [m] + cnt [m - 1] + cnt [m + 1]);
   }
   return ground_z;
+
 }
