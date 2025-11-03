@@ -12,7 +12,7 @@ namespace {
 }
 
 // --------------------------------------------------
-// LidarFix Nodel
+// LidarFix Node
 // --------------------------------------------------
 LidarFix::LidarFix() : rclcpp::Node("lidar_fix_node")
 {
@@ -338,3 +338,4 @@ float LidarFix::estimate_ground_z(const sensor_msgs::msg::PointCloud2::SharedPtr
   return ground_z;
 
 }
+
